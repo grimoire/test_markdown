@@ -1,0 +1,1099 @@
+## Benchmark
+
+### Backends
+CPU: ncnn, ONNXRuntime, OpenVINO
+
+GPU: TensorRT, PPLNN
+
+### Latency benchmark
+#### Platform
+- Ubuntu 18.04
+- Cuda 11.3
+- TensorRT 7.2.3.4
+- Docker 20.10.8
+- NVIDIA tesla T4 tensor core GPU for TensorRT.
+
+#### Other settings
+- Static graph
+- Batch size 1
+- Synchronize devices after each inference.
+- We count the average inference performance of 100 images of the dataset.
+- Warm up. For classification, we warm up 1010 iters. For other codebases, we warm up 10 iters.
+- Input resolution varies for different datasets of different codebases. All inputs are real images except for `mmediting` because the dataset is not large enough.
+
+
+Users can directly test the speed through [how_to_measure_performance_of_models.md](tutorials/how_to_measure_performance_of_models.md). And here is the benchmark in our environment.
+
+<svg xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <style>
+      .docutils {
+        background-color: red;
+      }
+    </style>
+    <table class="docutils">
+      <thead>
+        <tr>
+          <th align="center" colspan="3">MMSeg</th>
+          <th align="center">Pytorch</th>
+          <th align="center">ONNXRuntime</th>
+          <th align="center" colspan="3">TensorRT</th>
+          <th align="center">PPLNN</th>
+          <th align="center"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td align="center">Model</td>
+          <td align="center">Dataset</td>
+          <td align="center">Metrics</td>
+          <td align="center">fp32</td>
+          <td align="center">fp32</td>
+          <td align="center">fp32</td>
+          <td align="center">fp16</td>
+          <td align="center">int8</td>
+          <td align="center">fp16</td>
+          <td>model config file</td>
+        </tr>
+        <tr>
+          <td align="center">FCN</td>
+          <td align="center">Cityscapes</td>
+          <td align="center">mIoU</td>
+          <td align="center">72.25</td>
+          <td align="center">-</td>
+          <td align="center">72.36</td>
+          <td align="center">72.35</td>
+          <td align="center">74.19</td>
+          <td align="center">-</td>
+          <td>$MMSEG_DIR/configs/fcn/fcn_r50-d8_512x1024_40k_cityscapes.py</td>
+        </tr>
+        <tr>
+          <td align="center">PSPNet</td>
+          <td align="center">Cityscapes</td>
+          <td align="center">mIoU</td>
+          <td align="center">78.55</td>
+          <td align="center">-</td>
+          <td align="center">78.26</td>
+          <td align="center">78.24</td>
+          <td align="center">77.97</td>
+          <td align="center">-</td>
+          <td>$MMSEG_DIR/configs/pspnet/pspnet_r50-d8_512x1024_80k_cityscapes.py</td>
+        </tr>
+        <tr>
+          <td align="center">deeplabv3</td>
+          <td align="center">Cityscapes</td>
+          <td align="center">mIoU</td>
+          <td align="center">79.09</td>
+          <td align="center">-</td>
+          <td align="center">79.12</td>
+          <td align="center">79.12</td>
+          <td align="center">78.96</td>
+          <td align="center">-</td>
+          <td>$MMSEG_DIR/configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py</td>
+        </tr>
+        <tr>
+          <td align="center">deeplabv3+</td>
+          <td align="center">Cityscapes</td>
+          <td align="center">mIoU</td>
+          <td align="center">79.61</td>
+          <td align="center">-</td>
+          <td align="center">79.6</td>
+          <td align="center">79.6</td>
+          <td align="center">79.43</td>
+          <td align="center">-</td>
+          <td>$MMSEG_DIR/configs/deeplabv3plus/deeplabv3plus_r50-d8_512x1024_40k_cityscapes.py</td>
+        </tr>
+        <tr>
+          <td align="center">Fast-SCNN</td>
+          <td align="center">Cityscapes</td>
+          <td align="center">mIoU</td>
+          <td align="center">70.96</td>
+          <td align="center">-</td>
+          <td align="center">70.93</td>
+          <td align="center">70.92</td>
+          <td align="center">66.0</td>
+          <td align="center">-</td>
+          <td>$MMSEG_DIR/configs/fastscnn/fast_scnn_lr0.12_8x4_160k_cityscapes.py</td>
+        </tr>
+      </tbody>
+    </table>
+  </foreignObject>
+</svg>
+<details>
+<summary style="margin-left: 25px;">MMDet</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="3">MMDet</th>
+    <th align="center" colspan="6">TensorRT</th>
+    <th align="center" colspan="2">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center" rowspan="2">Model</td>
+    <td align="center" rowspan="2">Dataset</td>
+    <td align="center" rowspan="2">Input</td>
+    <td align="center" colspan="2">fp32</td>
+    <td align="center" colspan="2">fp16</td>
+    <td align="center" colspan="2">in8</td>
+    <td align="center" colspan="2">fp16</td>
+    <td rowspan="2">model config file</td>
+  </tr>
+  <tr>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+  </tr>
+  <tr>
+    <td align="center">YOLOv3</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">94.08</td>
+    <td align="center">10.63</td>
+    <td align="center">24.90</td>
+    <td align="center">40.17</td>
+    <td align="center">24.87</td>
+    <td align="center">40.21</td>
+    <td align="center">47.64</td>
+    <td align="center">20.99</td>
+    <td>$MMDET_DIR/configs/yolo/yolov3_d53_320_273e_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">SSD-Lite</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">14.91</td>
+    <td align="center">67.06</td>
+    <td align="center">8.92</td>
+    <td align="center">112.13</td>
+    <td align="center">8.65</td>
+    <td align="center">115.63</td>
+    <td align="center">30.13</td>
+    <td align="center">33.19</td>
+    <td>$MMDET_DIR/configs/ssd/ssdlite_mobilenetv2_scratch_600e_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">RetinaNet</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">97.09</td>
+    <td align="center">10.30</td>
+    <td align="center">25.79</td>
+    <td align="center">38.78</td>
+    <td align="center">16.88</td>
+    <td align="center">59.23</td>
+    <td align="center">38.34</td>
+    <td align="center">26.08</td>
+    <td>$MMDET_DIR/configs/retinanet/retinanet_r50_fpn_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">FCOS</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">84.06</td>
+    <td align="center">11.90</td>
+    <td align="center">23.15</td>
+    <td align="center">43.20</td>
+    <td align="center">17.68</td>
+    <td align="center">56.57</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td>$MMDET_DIR/configs/fcos/fcos_r50_caffe_fpn_gn-head_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">FSAF</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">82.96</td>
+    <td align="center">12.05</td>
+    <td align="center">21.02</td>
+    <td align="center">47.58</td>
+    <td align="center">13.50</td>
+    <td align="center">74.08</td>
+    <td align="center">30.41</td>
+    <td align="center">32.89</td>
+    <td>$MMDET_DIR/configs/fsaf/fsaf_r50_fpn_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">Faster-RCNN</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">88.08</td>
+    <td align="center">11.35</td>
+    <td align="center">26.52</td>
+    <td align="center">37.70</td>
+    <td align="center">19.14</td>
+    <td align="center">52.23</td>
+    <td align="center">65.40</td>
+    <td align="center">15.29</td>
+    <td>$MMDET_DIR/configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">Mask-RCNN</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">320.86 </td>
+    <td align="center">3.12</td>
+    <td align="center">241.32</td>
+    <td align="center">4.14</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">86.80</td>
+    <td align="center">11.52</td>
+    <td>$MMDET_DIR/configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details>
+
+<summary style="margin-left: 25px;">MMEdit</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="2">MMEdit</th>
+    <th align="center" colspan="6">TensorRT</th>
+    <th align="center" colspan="2">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center" rowspan="2">Model</td>
+    <td align="center" rowspan="2">Input</td>
+    <td align="center" colspan="2">fp32</td>
+    <td align="center" colspan="2">fp16</td>
+    <td align="center" colspan="2">in8</td>
+    <td align="center" colspan="2">fp16</td>
+    <td rowspan="2">model config file</td>
+  </tr>
+  <tr>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+  </tr>
+  <tr>
+    <td align="center">ESRGAN</td>
+    <td align="center">1x3x32x32</td>
+    <td align="center">12.64</td>
+    <td align="center">79.14</td>
+    <td align="center">12.42</td>
+    <td align="center">80.50</td>
+    <td align="center">12.45</td>
+    <td align="center">80.35</td>
+    <td align="center">7.67</td>
+    <td align="center">130.39</td>
+    <td>$MMEDIT_DIR/configs/restorers/esrgan/esrgan_psnr_x4c64b23g32_g1_1000k_div2k.py</td>
+  </tr>
+  <tr>
+    <td align="center">SRCNN</td>
+    <td align="center">1x3x32x32</td>
+    <td align="center">0.70</td>
+    <td align="center">1436.47</td>
+    <td align="center">0.35</td>
+    <td align="center">2836.62</td>
+    <td align="center">0.26</td>
+    <td align="center">3850.45</td>
+    <td align="center">0.56</td>
+    <td align="center">1775.11</td>
+    <td>$MMEDIT_DIR/configs/restorers/srcnn/srcnn_x4k915_g1_1000k_div2k.py</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary style="margin-left: 25px;">MMOCR</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="3">MMOCR</th>
+    <th align="center" colspan="6">TensorRT</th>
+    <th align="center" colspan="2">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center" rowspan="2">Model</td>
+    <td align="center" rowspan="2">Dataset</td>
+    <td align="center" rowspan="2">Input</td>
+    <td align="center" colspan="2">fp32</td>
+    <td align="center" colspan="2">fp16</td>
+    <td align="center" colspan="2">in8</td>
+    <td align="center" colspan="2">fp16</td>
+    <td rowspan="2">model config file</td>
+  </tr>
+  <tr>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+  </tr>
+  <tr>
+    <td align="center">YOLOv3</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">94.08</td>
+    <td align="center">10.63</td>
+    <td align="center">24.90</td>
+    <td align="center">40.17</td>
+    <td align="center">24.87</td>
+    <td align="center">40.21</td>
+    <td align="center">47.64</td>
+    <td align="center">20.99</td>
+    <td>$MMDET_DIR/configs/yolo/yolov3_d53_320_273e_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">SSD-Lite</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">14.91</td>
+    <td align="center">67.06</td>
+    <td align="center">8.92</td>
+    <td align="center">112.13</td>
+    <td align="center">8.65</td>
+    <td align="center">115.63</td>
+    <td align="center">30.13</td>
+    <td align="center">33.19</td>
+    <td>$MMDET_DIR/configs/ssd/ssdlite_mobilenetv2_scratch_600e_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">RetinaNet</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">97.09</td>
+    <td align="center">10.30</td>
+    <td align="center">25.79</td>
+    <td align="center">38.78</td>
+    <td align="center">16.88</td>
+    <td align="center">59.23</td>
+    <td align="center">38.34</td>
+    <td align="center">26.08</td>
+    <td>$MMDET_DIR/configs/retinanet/retinanet_r50_fpn_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">FCOS</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">84.06</td>
+    <td align="center">11.90</td>
+    <td align="center">23.15</td>
+    <td align="center">43.20</td>
+    <td align="center">17.68</td>
+    <td align="center">56.57</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td>$MMDET_DIR/configs/fcos/fcos_r50_caffe_fpn_gn-head_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">FSAF</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">82.96</td>
+    <td align="center">12.05</td>
+    <td align="center">21.02</td>
+    <td align="center">47.58</td>
+    <td align="center">13.50</td>
+    <td align="center">74.08</td>
+    <td align="center">30.41</td>
+    <td align="center">32.89</td>
+    <td>$MMDET_DIR/configs/fsaf/fsaf_r50_fpn_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">Faster-RCNN</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">88.08</td>
+    <td align="center">11.35</td>
+    <td align="center">26.52</td>
+    <td align="center">37.70</td>
+    <td align="center">19.14</td>
+    <td align="center">52.23</td>
+    <td align="center">65.40</td>
+    <td align="center">15.29</td>
+    <td>$MMDET_DIR/configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py</td>
+  </tr>
+  <tr>
+    <td align="center">Mask-RCNN</td>
+    <td align="center">COCO</td>
+    <td align="center">1x3x800x1344</td>
+    <td align="center">320.86 </td>
+    <td align="center">3.12</td>
+    <td align="center">241.32</td>
+    <td align="center">4.14</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">86.80</td>
+    <td align="center">11.52</td>
+    <td>$MMDET_DIR/configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary style="margin-left: 25px;">MMSeg</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="3">MMSeg</th>
+    <th align="center" colspan="6">TensorRT</th>
+    <th align="center" colspan="2">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center" rowspan="2">Model</td>
+    <td align="center" rowspan="2">Dataset</td>
+    <td align="center" rowspan="2">Input</td>
+    <td align="center" colspan="2">fp32</td>
+    <td align="center" colspan="2">fp16</td>
+    <td align="center" colspan="2">in8</td>
+    <td align="center" colspan="2">fp16</td>
+    <td rowspan="2">model config file</td>
+  </tr>
+  <tr>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+    <td align="center">latency (ms)</td>
+    <td align="center">FPS</td>
+  </tr>
+  <tr>
+    <td align="center">FCN</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">1x3x512x1024</td>
+    <td align="center">128.42</td>
+    <td align="center">7.79</td>
+    <td align="center">23.97</td>
+    <td align="center">41.72</td>
+    <td align="center">18.13</td>
+    <td align="center">55.15</td>
+    <td align="center">27.00</td>
+    <td align="center">37.04</td>
+    <td>$MMSEG_DIR/configs/fcn/fcn_r50-d8_512x1024_40k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">PSPNet</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">1x3x512x1024</td>
+    <td align="center">119.77</td>
+    <td align="center">8.35</td>
+    <td align="center">24.10</td>
+    <td align="center">41.49</td>
+    <td align="center">16.33</td>
+    <td align="center">61.23</td>
+    <td align="center">27.26</td>
+    <td align="center">36.69</td>
+    <td>$MMSEG_DIR/configs/pspnet/pspnet_r50-d8_512x1024_80k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">DeepLabV3</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">1x3x512x1024</td>
+    <td align="center">226.75</td>
+    <td align="center">4.41</td>
+    <td align="center">31.80</td>
+    <td align="center">31.45</td>
+    <td align="center">19.85</td>
+    <td align="center">50.38</td>
+    <td align="center">36.01</td>
+    <td align="center">27.77</td>
+    <td>$MMSEG_DIR/configs/deeplabv3/deeplabv3_r50-d8_512x1024_80k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">DeepLabV3+</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">1x3x512x1024</td>
+    <td align="center">151.25</td>
+    <td align="center">6.61</td>
+    <td align="center">47.03</td>
+    <td align="center">21.26</td>
+    <td align="center">50.38</td>
+    <td align="center">26.67</td>
+    <td align="center">34.80</td>
+    <td align="center">28.74</td>
+    <td>$MMSEG_DIR/configs/deeplabv3plus/deeplabv3plus_r50-d8_512x1024_80k_cityscapes.py</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+### Performance benchmark
+
+Users can directly test the performance through [how_to_evaluate_a_model.md](tutorials/how_to_evaluate_a_model.md). And here is the benchmark in our environment.
+
+<details>
+<summary style="margin-left: 25px;">MMCls</summary>
+<div style="margin-left: 25px;">
+
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="3">MMCls</th>
+    <th align="center">PyTorch</th>
+    <th align="center">ONNX Runtime</th>
+    <th align="center" colspan="3">TensorRT</th>
+    <th align="center">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center">Model</td>
+    <td align="center">Task</td>
+    <td align="center">Metrics</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp16</td>
+    <td align="center">int8</td>
+    <td align="center">fp16</td>
+    <td>model config file</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ResNet-18</td>
+    <td align="center" rowspan="2">Classification</td>
+    <td align="center">top-1</td>
+    <td align="center">69.90</td>
+    <td align="center">69.88</td>
+    <td align="center">69.88</td>
+    <td align="center">69.86</td>
+    <td align="center">69.86</td>
+    <td align="center">69.86</td>
+    <td rowspan="2">$MMCLS_DIR/configs/resnet/resnet18_b32x8_imagenet.py</td>
+  </tr>
+  <tr>
+    <td align="center">top-5</td>
+    <td align="center">89.43</td>
+    <td align="center">89.34</td>
+    <td align="center">89.34</td>
+    <td align="center">89.33</td>
+    <td align="center">89.38</td>
+    <td align="center">89.34</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ResNeXt-50</td>
+    <td align="center" rowspan="2">Classification</td>
+    <td align="center">top-1</td>
+    <td align="center">77.90</td>
+    <td align="center">77.90</td>
+    <td align="center">77.90</td>
+    <td align="center">-</td>
+    <td align="center">77.78</td>
+    <td align="center">77.89</td>
+    <td rowspan="2">$MMCLS_DIR/configs/resnext/resnext50_32x4d_b32x8_imagenet.py</td>
+  </tr>
+  <tr>
+    <td align="center">top-5</td>
+    <td align="center">93.66</td>
+    <td align="center">93.66</td>
+    <td align="center">93.66</td>
+    <td align="center">-</td>
+    <td align="center">93.64</td>
+    <td align="center">93.65</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">SE-ResNet-50</td>
+    <td align="center" rowspan="2">Classification</td>
+    <td align="center">top-1</td>
+    <td align="center">77.74</td>
+    <td align="center">77.74</td>
+    <td align="center">77.74</td>
+    <td align="center">77.75</td>
+    <td align="center">77.63</td>
+    <td align="center">?</td>
+    <td rowspan="2">$MMCLS_DIR/configs/resnext/resnext50_32x4d_b32x8_imagenet.py</td>
+  </tr>
+  <tr>
+    <td align="center">top-5</td>
+    <td align="center">93.84</td>
+    <td align="center">93.84</td>
+    <td align="center">93.84</td>
+    <td align="center">93.83</td>
+    <td align="center">93.72</td>
+    <td align="center">?</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ShuffleNetV1 1.0x</td>
+    <td align="center" rowspan="2">Classification</td>
+    <td align="center">top-1</td>
+    <td align="center">68.13</td>
+    <td align="center">68.13</td>
+    <td align="center">68.13</td>
+    <td align="center">68.13</td>
+    <td align="center">67.71</td>
+    <td align="center">?</td>
+    <td rowspan="2">$MMCLS_DIR/configs/shufflenet_v1/shufflenet_v1_1x_b64x16_linearlr_bn_nowd_imagenet.py</td>
+  </tr>
+  <tr>
+    <td align="center">top-5</td>
+    <td align="center">87.81</td>
+    <td align="center">87.81</td>
+    <td align="center">87.81</td>
+    <td align="center">87.81</td>
+    <td align="center">87.58</td>
+    <td align="center">?</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ShuffleNetV2 1.0x</td>
+    <td align="center" rowspan="2">Classification</td>
+    <td align="center">top-1</td>
+    <td align="center">69.55</td>
+    <td align="center">69.55</td>
+    <td align="center">69.55</td>
+    <td align="center">69.54</td>
+    <td align="center">69.10</td>
+    <td align="center">?</td>
+    <td rowspan="2">$MMCLS_DIR/configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py</td>
+  </tr>
+  <tr>
+    <td align="center">top-5</td>
+    <td align="center">88.92</td>
+    <td align="center">88.92</td>
+    <td align="center">88.92</td>
+    <td align="center">88.91</td>
+    <td align="center">88.58</td>
+    <td align="center">?</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">MobileNet V2</td>
+    <td align="center" rowspan="2">Classification</td>
+    <td align="center">top-1</td>
+    <td align="center">71.86</td>
+    <td align="center">71.86</td>
+    <td align="center">71.86</td>
+    <td align="center">71.87</td>
+    <td align="center">70.91</td>
+    <td align="center">?</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/real_esrgan/realesrnet_c64b23g32_12x4_lr2e-4_1000k_df2k_ost.py</td>
+  </tr>
+  <tr>
+    <td align="center">top-5</td>
+    <td align="center">90.42</td>
+    <td align="center">90.42</td>
+    <td align="center">90.42</td>
+    <td align="center">90.40</td>
+    <td align="center">89.85</td>
+    <td align="center">?</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+
+<details>
+<summary style="margin-left: 25px;">MMEdit</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="4">MMEdit</th>
+    <th align="center">Pytorch</th>
+    <th align="center">ONNX Runtime</th>
+    <th align="center" colspan="3">TensorRT</th>
+    <th align="center">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+
+  <tr>
+    <td align="center">Model</td>
+    <td align="center">Task</td>
+    <td align="center">Dataset</td>
+    <td align="center">Metrics</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp16</td>
+    <td align="center">int8</td>
+    <td align="center">fp16</td>
+    <td>model config file</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">SRCNN</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">28.4316</td>
+    <td align="center">28.4323</td>
+    <td align="center">28.4323</td>
+    <td align="center">28.4286</td>
+    <td align="center">28.1995</td>
+    <td align="center">28.4311</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/srcnn/srcnn_x4k915_g1_1000k_div2k.py</td>
+  </tr>
+  <tr>
+    <td align="center">SSIM</td>
+    <td align="center">0.8099</td>
+    <td align="center">0.8097</td>
+    <td align="center">0.8097</td>
+    <td align="center">0.8096</td>
+    <td align="center">0.7934</td>
+    <td align="center">0.8096</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ESRGAN</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">28.2700</td>
+    <td align="center">28.2592</td>
+    <td align="center">28.2592</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">28.2624</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/esrgan/esrgan_x4c64b23g32_g1_400k_div2k.py</td>
+  </tr>
+  <tr>
+    <td align="center">SSIM</td>
+    <td align="center">0.7778</td>
+    <td align="center">0.7764</td>
+    <td align="center">0.7774</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">0.7765</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">ESRGAN-PSNR</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">30.6428</td>
+    <td align="center">30.6444</td>
+    <td align="center">30.6430</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">27.0426</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/esrgan/esrgan_psnr_x4c64b23g32_g1_1000k_div2k.py</td>
+  </tr>
+  <tr>
+    <td align="center"></td>
+    <td align="center">0.8559</td>
+    <td align="center">0.8558</td>
+    <td align="center">0.8558</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">0.8557</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">SRGAN</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">27.9499</td>
+    <td align="center">27.9408</td>
+    <td align="center">27.9408</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">27.9388</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/srresnet_srgan/srgan_x4c64b16_g1_1000k_div2k.pyy</td>
+  </tr>
+  <tr>
+    <td align="center">SSIM</td>
+    <td align="center">0.7846</td>
+    <td align="center">0.7839</td>
+    <td align="center">0.7839</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">0.7839</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">SRResNet</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">30.2252</td>
+    <td align="center">30.2300</td>
+    <td align="center">30.2300</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">30.2294</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/srresnet_srgan/msrresnet_x4c64b16_g1_1000k_div2k.py</td>
+  </tr>
+  <tr>
+    <td align="center"></td>
+    <td align="center">0.8491</td>
+    <td align="center">0.8488</td>
+    <td align="center">0.8488</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">0.8488</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">Real-ESRNet</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">28.0297</td>
+    <td align="center">27.7016</td>
+    <td align="center">27.7016</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">27.7049</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/real_esrgan/realesrnet_c64b23g32_12x4_lr2e-4_1000k_df2k_ost.py</td>
+  </tr>
+  <tr>
+    <td align="center">SSIM</td>
+    <td align="center">0.8236</td>
+    <td align="center">0.8122</td>
+    <td align="center">0.8122</td>
+    <td align="center"> - </td>
+    <td align="center"> - </td>
+    <td align="center">0.8123</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="2">EDSR</td>
+    <td align="center" rowspan="2">Super Resolution</td>
+    <td align="center" rowspan="2">Set5</td>
+    <td align="center">PSNR</td>
+    <td align="center">30.2223</td>
+    <td align="center">30.2214</td>
+    <td align="center">30.2214</td>
+    <td align="center">30.2211</td>
+    <td align="center">30.1383</td>
+    <td align="center">-</td>
+    <td rowspan="2">$MMEDIT_DIR/configs/restorers/edsr/edsr_x4c64b16_g1_300k_div2k.py</td>
+  </tr>
+  <tr>
+    <td align="center">SSIM</td>
+    <td align="center">0.8500</td>
+    <td align="center">0.8497</td>
+    <td align="center">0.8497</td>
+    <td align="center">0.8497</td>
+    <td align="center">0.8469</td>
+    <td align="center"> - </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary style="margin-left: 25px;">MMOCR</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="4">MMOCR</th>
+    <th align="center">Pytorch</th>
+    <th align="center">ONNXRuntime</th>
+    <th align="center" colspan="3">TensorRT</th>
+    <th align="center">PPLNN</th>
+    <th align="center">OpenVINO</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center">Model</td>
+    <td align="center">Task</td>
+    <td align="center">Dataset</td>
+    <td align="center">Metrics</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp16</td>
+    <td align="center">int8</td>
+    <td align="center">fp16</td>
+    <td align="center">fp32</td>
+    <td>model config file</td>
+  </tr>
+  <tr>
+    <td align="center" rowspan="3">DBNet*</td>
+    <td align="center" rowspan="3">TextDetection</td>
+    <td align="center" rowspan="3">ICDAR2015</td>
+    <td align="center">recall</td>
+    <td align="center">0.7310</td>
+    <td align="center">0.7304</td>
+    <td align="center">0.7198</td>
+    <td align="center">0.7179</td>
+    <td align="center">0.7111</td>
+    <td align="center">0.7304</td>
+    <td align="center">0.7309</td>
+    <td align="center" rowspan="3">$MMOCR_DIR/configs/textdet/dbnet/dbnet_r18_fpnc_1200e_icdar2015.py</td>
+  </tr>
+  <tr>
+    <td align="center">precision</td>
+    <td align="center">0.8714</td>
+    <td align="center">0.8718</td>
+    <td align="center">0.8677</td>
+    <td align="center">0.8674</td>
+    <td align="center">0.8688</td>
+    <td align="center">0.8718</td>
+    <td align="center">0.8714</td>
+  </tr>
+  <tr>
+    <td align="center">hmean</td>
+    <td align="center">0.7950</td>
+    <td align="center">0.7949</td>
+    <td align="center">0.7868</td>
+    <td align="center">0.7856</td>
+    <td align="center">0.7821</td>
+    <td align="center">0.7949</td>
+    <td align="center">0.7950</td>
+  </tr>
+  <tr>
+    <td align="center">CRNN</td>
+    <td align="center">TextRecognition</td>
+    <td align="center">IIIT5K</td>
+    <td align="center">acc</td>
+    <td align="center">0.8067</td>
+    <td align="center">0.8067</td>
+    <td align="center">0.8067</td>
+    <td align="center">0.8063</td>
+    <td align="center">0.8067</td>
+    <td align="center">0.8067</td>
+    <td align="center">-</td>
+    <td>$MMOCR_DIR/configs/textrecog/crnn/crnn_academic_dataset.py</td>
+  </tr>
+  <tr>
+    <td align="center">SAR</td>
+    <td align="center">TextRecognition</td>
+    <td align="center">IIIT5K</td>
+    <td align="center">acc</td>
+    <td align="center">0.9517</td>
+    <td align="center">0.9287</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td>$MMOCR_DIR/configs/textrecog/sar/sar_r31_parallel_decoder_academic.py</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary style="margin-left: 25px;">MMSeg</summary>
+<div style="margin-left: 25px;">
+<table class="docutils">
+<thead>
+  <tr>
+    <th align="center" colspan="3">MMSeg</th>
+    <th align="center">Pytorch</th>
+    <th align="center">ONNXRuntime</th>
+    <th align="center" colspan="3">TensorRT</th>
+    <th align="center">PPLNN</th>
+    <th align="center"></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center">Model</td>
+    <td align="center">Dataset</td>
+    <td align="center">Metrics</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp32</td>
+    <td align="center">fp16</td>
+    <td align="center">int8</td>
+    <td align="center">fp16</td>
+    <td>model config file</td>
+  </tr>
+  <tr>
+    <td align="center">FCN</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">mIoU</td>
+    <td align="center">72.25</td>
+    <td align="center">-</td>
+    <td align="center">72.36</td>
+    <td align="center">72.35</td>
+    <td align="center">74.19</td>
+    <td align="center">-</td>
+    <td>$MMSEG_DIR/configs/fcn/fcn_r50-d8_512x1024_40k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">PSPNet</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">mIoU</td>
+    <td align="center">78.55</td>
+    <td align="center">-</td>
+    <td align="center">78.26</td>
+    <td align="center">78.24</td>
+    <td align="center">77.97</td>
+    <td align="center">-</td>
+    <td>$MMSEG_DIR/configs/pspnet/pspnet_r50-d8_512x1024_80k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">deeplabv3</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">mIoU</td>
+    <td align="center">79.09</td>
+    <td align="center">-</td>
+    <td align="center">79.12</td>
+    <td align="center">79.12</td>
+    <td align="center">78.96</td>
+    <td align="center">-</td>
+    <td>$MMSEG_DIR/configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">deeplabv3+</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">mIoU</td>
+    <td align="center">79.61</td>
+    <td align="center">-</td>
+    <td align="center">79.6</td>
+    <td align="center">79.6</td>
+    <td align="center">79.43</td>
+    <td align="center">-</td>
+    <td>$MMSEG_DIR/configs/deeplabv3plus/deeplabv3plus_r50-d8_512x1024_40k_cityscapes.py</td>
+  </tr>
+  <tr>
+    <td align="center">Fast-SCNN</td>
+    <td align="center">Cityscapes</td>
+    <td align="center">mIoU</td>
+    <td align="center">70.96</td>
+    <td align="center">-</td>
+    <td align="center">70.93</td>
+    <td align="center">70.92</td>
+    <td align="center">66.0</td>
+    <td align="center">-</td>
+    <td>$MMSEG_DIR/configs/fastscnn/fast_scnn_lr0.12_8x4_160k_cityscapes.py</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</details>
+
+
+### Notes
+- As some datasets contain images with various resolutions in codebase like MMDet. The speed benchmark is gained through static configs in MMDeploy, while the performance benchmark is gained through dynamic ones.
+
+- Some int8 performance benchmarks of TensorRT require Nvidia cards with tensor core, or the performance would drop heavily.
+
+- DBNet uses the interpolate mode `nearest` in the neck of the model, which TensorRT-7 applies a quite different strategy from Pytorch. To make the repository compatible with TensorRT-7, we rewrite the neck to use the interpolate mode `bilinear` which improves final detection performance. To get the matched performance with Pytorch, TensorRT-8+ is recommended, which the interpolate methods are all the same as Pytorch.
