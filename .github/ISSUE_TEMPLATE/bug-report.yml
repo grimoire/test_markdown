@@ -7,6 +7,7 @@ body:
   attributes:
     value: >
       ## Checklist
+
       1. I have searched related issues but cannot get the expected help.
       2. I have read the [FAQ documentation](https://github.com/open-mmlab/mmdeploy/blob/master/docs/en/faq.md) but cannot get the expected help.
       3. The bug has not been fixed in the latest version.
