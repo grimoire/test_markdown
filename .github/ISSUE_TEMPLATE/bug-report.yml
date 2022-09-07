@@ -20,14 +20,13 @@ body:
   attributes:
     label: Reproduction
     description: |
-
       1. What command or script did you run?
 
-      ```none
+      2. Did you make any modifications on the code or config? Did you understand what you have modified?
+    placeholder: |
+      ```
       A placeholder for the command.
       ```
-
-      2. Did you make any modifications on the code or config? Did you understand what you have modified?
   validations:
     required: true
 - type: textarea
