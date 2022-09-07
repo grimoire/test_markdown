@@ -24,9 +24,7 @@ body:
 
       2. Did you make any modifications on the code or config? Did you understand what you have modified?
     placeholder: |
-      ```
       A placeholder for the command.
-      ```
   validations:
     required: true
 - type: textarea
@@ -45,9 +43,8 @@ body:
     description: |
       If applicable, paste the error trackback here.
     placeholder: |
-      ```none
       A placeholder for trackback.
-      ```
+    render: bash
 - type: markdown
   attributes:
     value: >
