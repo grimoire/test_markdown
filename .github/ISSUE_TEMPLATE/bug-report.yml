@@ -35,6 +35,8 @@ body:
       2. You may add addition that may be helpful for locating the problem, such as
          - How you installed PyTorch \[e.g., pip, conda, source\]
          - Other environment variables that may be related (such as `$PATH`, `$LD_LIBRARY_PATH`, `$PYTHONPATH`, etc.)
+    placeholder: Environment here.
+    render: Shell
   validations:
     required: true
 - type: textarea
@@ -42,9 +44,8 @@ body:
     label: Error traceback
     description: |
       If applicable, paste the error trackback here.
-    placeholder: |
-      A placeholder for trackback.
-    render: bash
+    placeholder: Logs and traceback here.
+    render: Shell
 - type: markdown
   attributes:
     value: >
